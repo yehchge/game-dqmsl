@@ -1,0 +1,234 @@
+<!doctype html>
+<html ng-app="app" ng-controller="MainCtrl">
+
+<head>
+    <meta charset="UTF-8">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.4/angular.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.4/angular-sanitize.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.4/angular-animate.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.11/angular-ui-router.min.js"></script>
+    <script src="js/app.min.js"></script>
+    <script src="js/filters.min.js"></script>
+    <script src="js/directives.min.js"></script>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animation.css">
+    <title>DQMSL - 情報所</title>
+</head>
+
+<body>
+    <div class="mon-nav">
+        <div class="row">
+            <div class="col-md-6">
+                <h1>級別篩選</h1>
+                <!--
+                <button ng-click="selectclass='1'">F</button>
+                <button ng-click="selectclass='2'">E</button>
+                <button ng-click="selectclass='3'">D</button>
+                <button ng-click="selectclass='4'">C</button>
+                <button ng-click="selectclass='5'">B</button>
+                -->
+                <button ng-click="selectclass='6'">A</button>
+                <button ng-click="selectclass='7'">S</button>
+                <button ng-click="selectclass='8'">SS</button>
+                <!--
+                <button ng-click="selectclass=''">ALL</button>
+                -->
+            </div>
+            <div class="col-md-6" ng-init="myorder='-monid | num'">
+                <h1>以...排序</h1>
+                <button ng-click="myorder='-monid | num'">編號</button>
+                <button ng-click="myorder='statsum | num'">數值總和</button>
+                <button ng-click="myorder='stathp | num'">HP</button>
+                <button ng-click="myorder='statmp | num'">MP</button>
+                <button ng-click="myorder='statatk | num'">攻</button>
+                <button ng-click="myorder='statdef | num'">防</button>
+                <button ng-click="myorder='statagi | num'">敏</button>
+                <button ng-click="myorder='statint | num'">智</button>
+            </div>
+        </div>
+
+    </div>
+    <hr>
+    <div class="mon" ng-init="selectclass='7'">
+        <h1 ng-show="monster">當前篩選 {{ selectclass | int2class}} 級</h1>
+        <div class="mon-data row" ng-show="monster" ng-repeat="i in monster | filter:{monclass:selectclass}:true | orderBy:myorder:true track by $index">
+            <div class="mon-info col-md-12">
+                <div class="col-md-1">
+                    <img ng-src="image/{{i.monid | numberFixedLen:3}}.png" width="50" alt="">
+                </div>
+                <div class="col-md-1">{{i.monsystem | jp2zh:translate}}</div>
+                <div class="col-md-4">
+                    <div>No:{{i.monid}}</div>
+                    <div>
+                        <span ng-show="i.monid | mon_name_jp2zh:translate_mon">{{i.monname | jp2zh:translate}}({{i.monid | mon_name_jp2zh:translate_mon}})</span>
+                        <span ng-hide="i.monid | mon_name_jp2zh:translate_mon">{{i.monname | jp2zh:translate}}</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div ng-if="i.leaderskillsystem">隊長技</div>
+                    <div ng-if="i.leaderskillsystem">
+                        {{i.leaderskillsystem | jp2zh:translate}} {{i.leaderskilleffect | jp2zh:translate}} {{i.leaderskillvalue}}
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div ng-if="i.skillact1">天生技</div>
+                    <div class="skill" ng-if="i.skillact1" ng-mouseover="querySkill(i.skillact1)" ng-mousemove="tooltipMove($event)" ng-mouseleave="tooltipRemove()">{{i.skillact1}}({{i.skillact1 | jp2zh:translate}})</div>
+                    <div class="skill" ng-if="i.skillact2" ng-mouseover="querySkill(i.skillact2)" ng-mousemove="tooltipMove($event)" ng-mouseleave="tooltipRemove()">>{{i.skillact2}}({{i.skillact2 | jp2zh:translate}})</div>
+                </div>
+            </div>
+            <div class="mon-stat col-md-12">
+                <h4><strong>基本訊息</strong></h4>
+                <div class="col-md-2">MaxLv: {{i.statlvmax}}
+                </div>
+                <div class="col-md-2">Type: {{i.montype | jp2zh:translate}}
+                </div>
+                <div class="col-md-2">數值總和: {{i.statsum}}
+                </div>
+                <div class="col-md-4">MaxLv Exp Req: {{i.statexpreq}}
+                </div>
+
+
+
+
+            </div>
+            <div class="mon-stat col-md-12">
+                <div class="col-md-2">MaxHP: {{i.stathp}}</div>
+                <div class="col-md-2">MaxMP: {{i.statmp}}</div>
+                <div class="col-md-2">Max攻: {{i.statatk}}</div>
+                <div class="col-md-2">Max防: {{i.statdef}}</div>
+                <div class="col-md-2">Max敏: {{i.statagi}}</div>
+                <div class="col-md-2">Max智: {{i.statint}}</div>
+            </div>
+
+            <div class="skill-recommend col-md-12" ng-if="i.recommendskillset1">
+                <h4><strong>技能組選擇</strong></h4>
+                <div class="col-md-3">
+                    <div ng-if="i.recommendskillset1">
+                        <div>
+                            <span class="red">{{i.recommendskillset1value.split(',')[0]}}</span> /
+                            <span class="green">{{i.recommendskillset1value.split(',')[1]}}</span>
+                        </div>
+                        <div>
+                            <div ng-repeat="j in i.recommendskillset1.split(',') track by $index">
+                                <span class="skill" ng-mouseover="querySkill(j,skill)" ng-mousemove="tooltipMove($event)" ng-mouseleave="tooltipRemove()">{{j}}({{j | jp2zh:translate}})</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div ng-if="i.recommendskillset2">
+                        <div>
+                            <span class="red">{{i.recommendskillset2value.split(',')[0]}}</span> /
+                            <span class="green">{{i.recommendskillset2value.split(',')[1]}}</span>
+                        </div>
+                        <div>
+                            <div ng-repeat="j in i.recommendskillset2.split(',') track by $index">
+                                <span class="skill" ng-mouseover="querySkill(j,skill)" ng-mousemove="tooltipMove($event)" ng-mouseleave="tooltipRemove()">{{j}}({{j | jp2zh:translate}})</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div ng-if="i.recommendskillset3">
+                        <div>
+                            <span class="red">{{i.recommendskillset3value.split(',')[0]}}</span> /
+                            <span class="green">{{i.recommendskillset3value.split(',')[1]}}</span>
+                        </div>
+                        <div>
+                            <div ng-repeat="j in i.recommendskillset3.split(',') track by $index">
+                                <span class="skill" ng-mouseover="querySkill(j,skill)" ng-mousemove="tooltipMove($event)" ng-mouseleave="tooltipRemove()">{{j}}({{j | jp2zh:translate}})</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div ng-if="i.recommendskillset4">
+                        <div>
+                            <span class="red">{{i.recommendskillset4value.split(',')[0]}}</span> /
+                            <span class="green">{{i.recommendskillset4value.split(',')[1]}}</span>
+                        </div>
+                        <div>
+                            <div ng-repeat="j in i.recommendskillset4.split(',') track by $index">
+                                <span class="skill" ng-mouseover="querySkill(j,skill)" ng-mousemove="tooltipMove($event)" ng-mouseleave="tooltipRemove()">{{j}}({{j | jp2zh:translate}})</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-hide="monster">
+            <div class="spinner">
+                <div class="spinner-container container1">
+                    <div class="circle1"></div>
+                    <div class="circle2"></div>
+                    <div class="circle3"></div>
+                    <div class="circle4"></div>
+                </div>
+                <div class="spinner-container container2">
+                    <div class="circle1"></div>
+                    <div class="circle2"></div>
+                    <div class="circle3"></div>
+                    <div class="circle4"></div>
+                </div>
+                <div class="spinner-container container3">
+                    <div class="circle1"></div>
+                    <div class="circle2"></div>
+                    <div class="circle3"></div>
+                    <div class="circle4"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="skill_query" ng-style="toolTipLocation">
+
+        <div class="name">
+            技能名稱：{{queryResult['日文名稱']}} ({{queryResult['中文名稱']}})
+        </div>
+        <div class="mp">MP消耗: {{queryResult['mp']}}</div>
+        <div class="tag">
+            <table>
+                <tr>
+                    <th>系統</th>
+                    <th>抗性</th>
+                    <th>類型</th>
+                    <th>目標</th>
+                </tr>
+                <tr>
+                    <td>{{queryResult['系統']}}</td>
+                    <td>{{queryResult['抗性']}}</td>
+                    <td>{{queryResult['類型']}}</td>
+                    <td>{{queryResult['目標']}}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="effect">
+            效果:{{queryResult['效果']}}
+        </div>
+
+    </div>
+
+    <script>
+        (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r;
+            i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date();
+            a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0];
+            a.async = 1;
+            a.src = g;
+            m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-18991256-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+</body>
+
+</html>
